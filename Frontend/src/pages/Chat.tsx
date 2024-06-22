@@ -35,19 +35,19 @@ const navigate = useNavigate();
       <div className="flex-grow p-4 overflow-auto">
         <div className="max-w-xl mx-auto">
           {messages.map((msg, index) => (
-            <div key={index} className={`my-2 p-4 rounded-lg ${msg.sender === "bot" ? "bg-blue-200 text-blue-900 self-start" : "bg-green-200 text-green-900 self-end"}`}>
-              {msg.text}
+            <div key={index} className={`my-2 p-4 rounded-lg shadow-md ${msg.sender === "bot" ? "bg-blue-200 text-blue-900 self-start mr-12" : "bg-green-200 text-green-900 ml-12"}`}>
+                {msg.text}
             </div>
           ))}
         </div>
       </div>
-      <div className="bg-white p-4 flex items-center">
+      <div className="bg-white p-4 w-full flex items-center justify-center">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          className="flex-grow p-2 border rounded-lg mr-2"
+          className="flex-grow p-2 border rounded-lg mr-2 max-w-2xl"
           placeholder="Type your message..."
         />
         <button
