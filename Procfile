@@ -1,1 +1,1 @@
-web: python setup.py && gunicorn backend.app:app
+web: python setup.py && gunicorn Backend.app:app
