@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS, cross_origin
 import requests
 from dotenv import load_dotenv
 import os
@@ -28,7 +28,7 @@ from googleapiclient.discovery import build
 load_dotenv()
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = '../Frontend/dist')
 
 CORS(app)  # enable CORS
 
@@ -95,12 +95,9 @@ chat_engine = index.as_chat_engine(
 # ----------------------------#
 
 
-@app.route('/') 
-def home():
-    return jsonify({'message': 'Working!'})
-
 
 @app.route('/chat', methods=['POST'])
+@cross_origin()
 def chat():
     data = request.json
     user_message = data.get('prompt')
@@ -167,6 +164,11 @@ def store_user_info(user_info):
         valueInputOption="USER_ENTERED",
         body=body
     ).execute()
+
+@app.route('/')
+@cross_origin()
+def server():
+    return send_from_directory('../Frontend/dist', 'index.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
