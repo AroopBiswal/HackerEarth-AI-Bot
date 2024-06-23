@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Chat: React.FC = () => {
@@ -8,19 +9,51 @@ const navigate = useNavigate();
     { text: "I need help with my HackerEarth account.", sender: "user" },
   ]);
   const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [typingAnimation, setTypingAnimation] = useState('.');
+
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (typing) {
+      interval = setInterval(() => {
+        setTypingAnimation(prev => {
+          if (prev === '.') return '..';
+          if (prev === '..') return '...';
+          return '.';
+        });
+      }, 500); // Update every 500ms
+    }
+    return () => clearInterval(interval);
+  }, [typing]);
+
 
   const navigateHome = () => {
     navigate('/');
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages([...messages, { text: input, sender: "user" }]);
+      const newMessages = [...messages, { text: input, sender: "user" }];
+      setMessages(newMessages);
       setInput("");
+      setTimeout(async () => {
+        setTyping(true);  // Set typing state to true after a delay
 
-      setTimeout(() => {
-        setMessages(prevMessages => [...prevMessages, { text: "I'm here to help!", sender: "bot" }]);
-      }, 1000);
+        try {
+          const response = await axios.post('http://localhost:5000/chat', { prompt: input });
+
+          const botResponse = response.data.response;
+
+
+          
+          setMessages([...newMessages, { text: botResponse, sender: "bot" }]);
+        } catch (error) {
+          console.error("Error fetching ChatGPT response:", error);
+        } finally {
+          setTyping(false);
+        }
+      }, 500); // Delay before bot responds
     }
   };
 
@@ -39,6 +72,11 @@ const navigate = useNavigate();
                 {msg.text}
             </div>
           ))}
+          {typing && (
+            <div className="my-2 p-4 rounded-lg shadow-md bg-blue-200 text-blue-900 self-start mr-12">
+              Typing{typingAnimation}
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-white p-4 w-full flex items-center justify-center">
