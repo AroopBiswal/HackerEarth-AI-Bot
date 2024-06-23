@@ -3,3 +3,5 @@ venv/
 
 .env
 credentials.json
+
+key-pair-1.ppk
