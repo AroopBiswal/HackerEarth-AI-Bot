@@ -6,7 +6,6 @@ const Chat: React.FC = () => {
 const navigate = useNavigate();
   const [messages, setMessages] = useState([
     { text: "Hello! How can I assist you today?", sender: "bot" },
-    { text: "I need help with my HackerEarth account.", sender: "user" },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -22,7 +21,7 @@ const navigate = useNavigate();
           if (prev === '..') return '...';
           return '.';
         });
-      }, 500); // Update every 500ms
+      }, 300);
     }
     return () => clearInterval(interval);
   }, [typing]);
@@ -38,12 +37,12 @@ const navigate = useNavigate();
       setMessages(newMessages);
       setInput("");
       setTimeout(async () => {
-        setTyping(true);  // Set typing state to true after a delay
+        setTyping(true);
 
         try {
           const response = await axios.post('http://localhost:5000/chat', { prompt: input });
 
-          const botResponse = response.data.response;
+          const botResponse = response.data.response
 
 
           
