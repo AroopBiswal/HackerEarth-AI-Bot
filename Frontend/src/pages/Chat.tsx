@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Chat: React.FC = () => {
@@ -13,14 +14,20 @@ const navigate = useNavigate();
     navigate('/');
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages([...messages, { text: input, sender: "user" }]);
+      const newMessages = [...messages, { text: input, sender: "user" }];
+      setMessages(newMessages);
       setInput("");
 
-      setTimeout(() => {
-        setMessages(prevMessages => [...prevMessages, { text: "I'm here to help!", sender: "bot" }]);
-      }, 1000);
+      try {
+        const response = await axios.post('http://localhost:5000/chat', { prompt: input });
+
+        const botResponse = response.data.response;
+        setMessages([...newMessages, { text: botResponse, sender: "bot" }]);
+      } catch (error) {
+        console.error("Error fetching ChatGPT response:", error);
+      }
     }
   };
 
