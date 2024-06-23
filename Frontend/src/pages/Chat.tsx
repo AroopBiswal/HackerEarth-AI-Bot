@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 const Chat: React.FC = () => {
 const navigate = useNavigate();
@@ -10,6 +11,8 @@ const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [typingAnimation, setTypingAnimation] = useState('.');
+  const [conversationState, setConversationState] = useState("initial");
+  const [userInfo, setUserInfo] = useState({});
 
 
   useEffect(() => {
@@ -40,12 +43,17 @@ const navigate = useNavigate();
         setTyping(true);
 
         try {
-          const response = await axios.post('http://localhost:5000/chat', { prompt: input });
+          const response = await axios.post('http://localhost:5000/chat', {
+            prompt: input,
+            conversation_state: conversationState,
+            user_info: userInfo,
+          });
 
           const botResponse = response.data.response
 
 
-          
+          setConversationState(response.data.conversation_state);
+          setUserInfo(response.data.user_info);
           setMessages([...newMessages, { text: botResponse, sender: "bot" }]);
         } catch (error) {
           console.error("Error fetching ChatGPT response:", error);
@@ -68,7 +76,7 @@ const navigate = useNavigate();
         <div className="max-w-xl mx-auto">
           {messages.map((msg, index) => (
             <div key={index} className={`my-2 p-4 rounded-lg shadow-md ${msg.sender === "bot" ? "bg-blue-200 text-blue-900 self-start mr-12" : "bg-green-200 text-green-900 ml-12"}`}>
-                {msg.text}
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
             </div>
           ))}
           {typing && (

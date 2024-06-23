@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from dotenv import load_dotenv
@@ -6,6 +6,7 @@ import os
 import uuid
 import pandas as pd
 import openai
+from openai import OpenAI
 
 
 # Knowledge Base (RAG System) Imports #
@@ -14,20 +15,28 @@ nest_asyncio.apply()
 
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 from llama_index.core.memory import ChatMemoryBuffer
-
-
-
 #------------------------------------#
+
+
+# Google Sheets API Imports #
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+
+#--------------------------------#
 
 load_dotenv()
 
+
 app = Flask(__name__)
+
 CORS(app)  # enable CORS
 
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 openai.api_key = os.environ["OPENAI_API_KEY"]
+client = OpenAI()
 
 
 # Prompt Engineering #
@@ -43,10 +52,22 @@ Use the provided information and sources to ensure your responses are accurate a
 """
 #-------------------#
 
+
+# Google Sheets Setup
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SERVICE_ACCOUNT_FILE = './credentials.json'
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+SAMPLE_SPREADSHEET_ID = '1kZtPJnFcJ4YA9WPRhGqvoHMm8grE_n9v-rfnNkT5ZaY'
+service = build('sheets', 'v4', credentials=credentials)
+sheet = service.spreadsheets()
+
+
+
+# ----------------------------#
+
 # Knowledge Base (RAG System) #
-
-
-
 PERSIST_DIR = "./storage"
 
 if not os.path.exists(PERSIST_DIR):
@@ -67,19 +88,11 @@ chat_engine = index.as_chat_engine(
     chat_mode="context",
     memory=memory,
     system_prompt=(
-        """You are a conversational AI bot designed to assist users with information about HackerEarth. Your role includes:
-1. Answering questions about HackerEarth, its products, services, and mission.
-2. Providing information about available demos and their benefits.
-3. Prompting users to sign up for a demo or contact HackerEarth for more details.
-4. Handling common user inquiries and offering assistance.
-
-HackerEarth is a tech hiring platform that helps recruiters and engineering managers effortlessly hire the best developers thanks to a powerful suite of virtual recruiting tools that help identify, assess, interview and engage developers.
-"""
+        context
     ),
 )
 
 # ----------------------------#
-
 
 
 @app.route('/') 
@@ -91,36 +104,69 @@ def home():
 def chat():
     data = request.json
     user_message = data.get('prompt')
+    conversation_state = data.get('conversation_state', 'initial')
+    user_info = data.get('user_info', {})
 
-    # headers = {
-    #     'Authorization': f'Bearer ' + OPENAI_API_KEY,
-    #     'Content-Type': 'application/json',
-    # }
-    # json_data = {
-    #     'model': 'gpt-3.5-turbo',
-    #     'messages': [
-    #         {'role': 'system', 'content': context},
-    #         {'role': 'user', 'content': user_message}
-    #     ],
-    #     'temperature': 0.7,
-    # }
+    print(f"State: {conversation_state}")
+    print(f"User info: {user_info}")
 
-    # response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
+    if conversation_state == 'initial':
+        response = chat_engine.chat(user_message)
+        conversation_state = 'collect_info'
+        return jsonify({'response': response.response + " Could you please provide your name, email, and company name?", 'conversation_state': conversation_state, 'user_info': user_info})
 
-    # if response.status_code != 200:
-    #     return jsonify({'error': 'Failed to get response from OpenAI API', 'status_code': response.status_code, 'details': response.text}), 500
+    elif conversation_state == 'collect_info':
+        user_info = extract_user_info(user_message)
+        conversation_state = 'completed'
 
-    # response_json = response.json()
+        # Store the user info in Google Sheets
+        store_user_info(user_info)
+        
+        return jsonify({'response': "Thank you for providing your details. How can I assist you further?", 'conversation_state': conversation_state, 'user_info': user_info})
 
-    # if 'choices' not in response_json:
-    #     return jsonify({'error': 'Invalid response format from OpenAI API', 'response': response_json}), 500
+    else:
+        response = chat_engine.chat(user_message)
+        return jsonify({'response': response.response, 'conversation_state': conversation_state, 'user_info': user_info})
 
-    # response_text = response_json['choices'][0]['message']['content'].strip()
+def extract_user_info(user_message):
+    # Use OpenAI's API to parse the user's input for name, email, and company
+    prompt = f"Extract the following details from the user's message: {user_message}\n\nDetails to extract:\nName: \nEmail: \nCompany:"
 
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+        {"role": "user", "content": prompt},
+        ],
+    )
 
-    response = chat_engine.chat(user_message)
+    response_text = response.choices[0].message.content
 
-    return jsonify({'response': response.response})
+    # Parse the response text to extract the details
+    lines = response_text.split("\n")
+    user_info = {}
+    for line in lines:
+        if "Name:" in line:
+            user_info['name'] = line.split("Name:")[1].strip()
+        elif "Email:" in line:
+            user_info['email'] = line.split("Email:")[1].strip()
+        elif "Company:" in line:
+            user_info['company'] = line.split("Company:")[1].strip()
+
+    return user_info
+
+def store_user_info(user_info):
+    values = [
+        [user_info.get('name'), user_info.get('email'), user_info.get('company')]
+    ]
+    body = {
+        'values': values
+    }
+    sheet.values().append(
+        spreadsheetId=SAMPLE_SPREADSHEET_ID,
+        range="Sheet1!A1:C1",
+        valueInputOption="USER_ENTERED",
+        body=body
+    ).execute()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
