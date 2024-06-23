@@ -11,8 +11,8 @@ subprocess.run(['npm', 'run', 'build'])
 os.chdir('..')
 
 # Copy build files to backend static directory
-build_dir = 'frontend/build'
-static_dir = 'backend/static'
+build_dir = 'Frontend/build'
+static_dir = 'Backend/static'
 
 if os.path.exists(static_dir):
     shutil.rmtree(static_dir)
