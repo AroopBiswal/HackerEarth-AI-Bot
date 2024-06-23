@@ -1,0 +1,232 @@
+FUL L- STACK Q U ESTI O N T YP E- DATASH EE T
+
+What does a Full-Stack developer do?
+
+A full-stack developer is a highly skilled programmer
+knowledgeable in both the front-end and back-end of
+an application. They are experienced generalists with
+end-to-end knowledge of the technology stack used
+to build an application and manage databases. These
+days, it’s critical to have a full-stack developer in any
+development team, and companies understand this.
+While hiring for a full-stack role, it’s pertinent to look
+for the skill set to straddle both front-end and
+back-end.
+Front-end refers to everything a user can see
+and interact with when they open a website or
+application. Front-end developers use
+programming languages such as HTML, CSS,
+and Javascript.
+Back-end, on the other hand, refers to the
+software code that communicates with the
+servers, databases, and internal architecture.
+Developers in this space possess skills such as
+Python, PHP, Ruby on Rails, SQL and so on.
+How does HackerEarth help in hiring
+Full-Stack developers?
+
+Full-stack questions on HackerEarth help in assessing
+the front-end and back-end skills of the candidates.
+These questions are mini-projects built with the
+candidates’ time constraints in mind.
+Therefore, candidates only need to create the
+functionality of an application and not the entire
+application.
+Easy questions- 30 mins
+
+Medium questions- 90 mins
+
+Hard questions- 240 mins
+
+Example of a Real World Full-Stack question
+
+Stand out capabilities of HackerEarth’s
+Full-Stack questions
+A growing library of 145+ full-stack questions that
+can be customized to any preferred framework.
+Full-stack questions on HackerEarth can be
+auto-evaluated using unit test cases to check
+the functionality of the applications built.
+Candidates can use the advanced, multi-language
+editor, Theia, to solve the full-stack questions.
+HackerEarth provides content-speciﬁc tags that
+can be used to search for questions that assess
+speciﬁc capabilities. See examples below.
+class
+
+jsp scripting elements
+AJAX
+
+rest
+ngclass
+
+sessions and cookies
+
+react
+
+linq
+
+backend api
+
+testing
+YAML ﬁle
+views in Django
+
+nested serializers
+
+List of supported frameworks
+Front-end
+
+Back-end
+
+Angular.js
+
+Django
+
+React.js
+
+Laravel
+
+Vue.js
+
+Node.js
+
+Ruby on Rails
+
+Next.js
+
+Spring Boot
+
+Flask
+
+JSP
+
+Django+ML
+
+TypeScript
+
+.NET
+
+Project level questions - Full stack question
+Problem name
+
+Diﬃculty level
+
+[React.js + Spring Boot] Beverage
+station
+
+Problem statement
+
+Maximum score
+
+Develop a pseudo full stack
+application that allows the user
+to manage beverage orders.
+
+Tags
+
+Page 1 of 2
+
+100
+
+Reading reports
+
+HackerEarth auto-generates candidate reports at the
+end of an assessment. These reports give insights into
+the skill-wise performance of the candidates, report
+any malpractice, and provide a detailed analysis of
+their submission. Admins can also preview the
+submission, download it, and also view the details of
+unit test cases that passed in the evaluation.
+Moreover, the reports can easily be shared with any
+evaluator via a link.
+
+FUL L- STACK Q U ESTI O N T YP E- DATASH EE T
+
+How to create a custom question for your
+real-life problem statements?
+Sample evaluation
+Input
+
+Time
+
+Result
+
+Score
+
+Input #1
+
+0.573 sec
+
+0
+
+Input #2
+
+0.058 sec
+
+20
+
+Input #3
+
+0.022 sec
+
+0
+
+In scenarios where you need to test candidates’
+capabilities in any solving real-life scenarios, you can
+create custom full-stack questions by going through
+the following steps:
+1. Add the problem name and your
+real-life problem statement
+
+How to pick a Full-Stack question?
+
+Full-stack questions within the HackerEarth library are
+created in an extensible way to provide ﬂexibility so
+that you can create problem statements according to
+your requirements.
+
+2. Pick the frameworks you would like to
+test your candidates in
+
+Stand out capabilities of HackerEarth’s
+Full-Stack questions
+
+Identify the required skills:
+Determine the speciﬁc skills you need to
+assess, whether it’s front-end, back-end, or
+a combination of both. Based on this,
+choose the appropriate framework for the
+full-stack development.
+
+3. Add your custom project or import a
+project from GitHub
+
+Choose the preferred time duration:
+HackerEarth oﬀers questions of various
+time durations, starting from 30 minutes
+long to 240 minute long projects. You are
+free to pick a diﬃculty level based on your
+requirements, too.
+
+Customize the questions:
+You can edit the maximum score, diﬃculty
+level, or add tags so that it’s easier for your
+team to access them in the future.
+
+That’s it! Once you upload your project, the system
+automatically maps the details to the platform
+template and your custom full-stack question is ready
+to use.
+
+NEE D TO H I R E
+F UL L -STACK DE VELO PE RS
+F OR YO UR T ECH T EAM?
+Get started with HackerEarth
+contact@hackerearth.com
++1-650-461-4192
+Request a Demo
+
+Page 2 of 2
+
+
