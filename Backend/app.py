@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 import pandas as pd
+import openai
 
 
 # Knowledge Base (RAG System) Imports #
@@ -12,6 +13,10 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
+from llama_index.core.memory import ChatMemoryBuffer
+
+
+
 #------------------------------------#
 
 load_dotenv()
@@ -19,7 +24,10 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # enable CORS
 
+
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
 # Prompt Engineering #
@@ -36,7 +44,7 @@ Use the provided information and sources to ensure your responses are accurate a
 #-------------------#
 
 # Knowledge Base (RAG System) #
-os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
+
 
 
 PERSIST_DIR = "./storage"
@@ -49,11 +57,26 @@ else:
     storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
     index = load_index_from_storage(storage_context)
 
-query_engine = index.as_chat_engine()
+# query_engine = index.as_chat_engine()
 
 # response = query_engine.query("What is HackerEarth?")
 # print(response)
 
+memory = ChatMemoryBuffer.from_defaults(token_limit=5000)
+chat_engine = index.as_chat_engine(
+    chat_mode="context",
+    memory=memory,
+    system_prompt=(
+        """You are a conversational AI bot designed to assist users with information about HackerEarth. Your role includes:
+1. Answering questions about HackerEarth, its products, services, and mission.
+2. Providing information about available demos and their benefits.
+3. Prompting users to sign up for a demo or contact HackerEarth for more details.
+4. Handling common user inquiries and offering assistance.
+
+HackerEarth is a tech hiring platform that helps recruiters and engineering managers effortlessly hire the best developers thanks to a powerful suite of virtual recruiting tools that help identify, assess, interview and engage developers.
+"""
+    ),
+)
 
 # ----------------------------#
 
@@ -95,7 +118,7 @@ def chat():
     # response_text = response_json['choices'][0]['message']['content'].strip()
 
 
-    response = query_engine.query(user_message)
+    response = chat_engine.chat(user_message)
 
     return jsonify({'response': response.response})
 
