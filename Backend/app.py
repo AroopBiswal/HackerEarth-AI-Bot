@@ -95,8 +95,12 @@ chat_engine = index.as_chat_engine(
 # ----------------------------#
 
 
+@app.route('/api/test')
+def test():
+    return "Test route is working!"
 
-@app.route('/chat', methods=['POST'])
+
+@app.route('/api/chat', methods=['POST'])
 @cross_origin()
 def chat():
     data = request.json
@@ -171,4 +175,4 @@ def server():
     return send_from_directory('../Frontend/dist', 'index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=8000)

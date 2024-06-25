@@ -43,7 +43,7 @@ const navigate = useNavigate();
         setTyping(true);
 
         try {
-          const response = await axios.post('http://localhost:5000/chat', {
+          const response = await axios.post('http://ec2-54-147-100-27.compute-1.amazonaws.com/api/chat', {
             prompt: input,
             conversation_state: conversationState,
             user_info: userInfo,
