@@ -7,6 +7,8 @@ import uuid
 import pandas as pd
 import openai
 from openai import OpenAI
+from datetime import datetime
+import pytz # For timezone conversion
 
 
 # Knowledge Base (RAG System) Imports #
@@ -49,6 +51,8 @@ context = """You are a conversational AI bot designed to assist users with infor
 HackerEarth is a tech hiring platform that helps recruiters and engineering managers effortlessly hire the best developers thanks to a powerful suite of virtual recruiting tools that help identify, assess, interview and engage developers.
 
 Use the provided information and sources to ensure your responses are accurate and helpful.
+
+Please limit answers to around 65 words or less. If you need more information, ask the user for clarification or provide a general response.
 """
 #-------------------#
 
@@ -114,24 +118,26 @@ def chat():
     if conversation_state == 'initial':
         response = chat_engine.chat(user_message)
         conversation_state = 'collect_info'
-        return jsonify({'response': response.response + " Could you please provide your name, email, and company name?", 'conversation_state': conversation_state, 'user_info': user_info})
+        return jsonify({'response': response.response + "\n" + "\n" + "\n" + "Could you please provide your name, email, and company name?", 'conversation_state': conversation_state, 'user_info': user_info})
 
     elif conversation_state == 'collect_info':
-        user_info = extract_user_info(user_message)
+        user_info, info_found = extract_user_info(user_message)
         conversation_state = 'completed'
-
-        # Store the user info in Google Sheets
-        store_user_info(user_info)
-        
-        return jsonify({'response': "Thank you for providing your details. How can I assist you further?", 'conversation_state': conversation_state, 'user_info': user_info})
-
+        if info_found:
+            store_user_info(user_info)
+            return jsonify({'response': "Thank you for providing your details. How can I assist you further?", 'conversation_state': conversation_state, 'user_info': user_info})
+        else:
+            # User did not provide contact info, answer their question instead
+            response = chat_engine.chat(user_message)
+            return jsonify({'response': response.response, 'conversation_state': conversation_state, 'user_info': user_info})
+    
     else:
         response = chat_engine.chat(user_message)
         return jsonify({'response': response.response, 'conversation_state': conversation_state, 'user_info': user_info})
 
 def extract_user_info(user_message):
-    # Use OpenAI's API to parse the user's input for name, email, and company
-    prompt = f"Extract the following details from the user's message: {user_message}\n\nDetails to extract:\nName: \nEmail: \nCompany:"
+    prompt = f"Extract the following details from the user's message: {user_message}\n\nDetails to extract:\nName: \nEmail: \nCompany: \n\n If they didn't provide anything or asked a question then populate a value called InfoProvided: and put False in it."
+
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -140,31 +146,49 @@ def extract_user_info(user_message):
         ],
     )
 
-    response_text = response.choices[0].message.content
 
-    # Parse the response text to extract the details
-    lines = response_text.split("\n")
+    response_text = response.choices[0].message.content
     user_info = {}
+    info_found = False
+
+    lines = response_text.split("\n")
     for line in lines:
         if "Name:" in line:
-            user_info['name'] = line.split("Name:")[1].strip()
-        elif "Email:" in line:
-            user_info['email'] = line.split("Email:")[1].strip()
-        elif "Company:" in line:
-            user_info['company'] = line.split("Company:")[1].strip()
+            name = line.split("Name:")[1].strip()
+            if name:
+                user_info['name'] = name
+                info_found = True
+        if "Email:" in line:
+            email = line.split("Email:")[1].strip()
+            if email:
+                user_info['email'] = email
+                info_found = True
+        if "Company:" in line:
+            company = line.split("Company:")[1].strip()
+            if company:
+                user_info['company'] = company
+                info_found = True
+        if "InfoProvided:" in line:
+            info_provided = line.split("InfoProvided:")[1].strip()
+            if info_provided == "False":
+                info_found = False
 
-    return user_info
+
+    return user_info, info_found
 
 def store_user_info(user_info):
+    pst_timezone = pytz.timezone('America/Los_Angeles')
+    current_time_pst = datetime.now(pst_timezone).strftime('%Y-%m-%d %H:%M:%S')
+
     values = [
-        [user_info.get('name'), user_info.get('email'), user_info.get('company')]
+        [user_info.get('name'), user_info.get('email'), user_info.get('company'), current_time_pst]
     ]
     body = {
         'values': values
     }
     sheet.values().append(
         spreadsheetId=SAMPLE_SPREADSHEET_ID,
-        range="Sheet1!A1:C1",
+        range="Sheet1!A:D",
         valueInputOption="USER_ENTERED",
         body=body
     ).execute()
