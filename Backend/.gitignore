@@ -7,5 +7,3 @@ credentials.json
 *.ppk
 *.pem
 
-# scripts
-ssh.sh
