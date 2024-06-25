@@ -36,16 +36,23 @@ const LandingPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Feature One</h3>
-            <p className="text-gray-600">Description of feature one.</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Trained using a RAG system on information from the HackerRank website to provide more specific and targeted answers.</h3>
+            {/* <p className="text-gray-600">Description of feature one.</p> */}
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Feature Two</h3>
-            <p className="text-gray-600">Description of feature two.</p>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            Asks for and stores user data in this spreadsheet: 
+            <a href="https://docs.google.com/spreadsheets/d/1kZtPJnFcJ4YA9WPRhGqvoHMm8grE_n9v-rfnNkT5ZaY/edit?gid=0#gid=0" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-500 underline ml-2">
+              Google Spreadsheet
+            </a>
+          </h3>            {/* <p className="text-gray-600">Description of feature two.</p> */}
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Feature Three</h3>
-            <p className="text-gray-600">Description of feature three.</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Hosted on AWS</h3>
+            {/* <p className="text-gray-600">Description of feature three.</p> */}
           </div>
         </div>
       </section>
