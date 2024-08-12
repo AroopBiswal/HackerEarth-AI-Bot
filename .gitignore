@@ -1,6 +1,7 @@
 # scripts
 ssh.sh
 git-filter-repo.py
+.DS_Store
 
 
 *.rdp
